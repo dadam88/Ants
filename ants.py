@@ -11,19 +11,18 @@ size = [400, 400]
 screen = pygame.display.set_mode(size)
  
 pygame.display.set_caption("Ants Sim")
- 
-# Loop until the user clicks the close button.
-done = False
-clock = pygame.time.Clock()
+clock = pygame.time.Clock() 
 
+# Create list of ants
 ants = []
-
+ants.append([200,200])
 for i in range(1000):
     ants.append([random.randrange(0,400), random.randrange(0, 400   )])
 
+# Create list of balls (attracting balls)
 balls = []
-for i in range(10):
-    balls.append([random.randrange(0,400), random.randrange(0,400)])
+# for i in range(10):
+#     balls.append([random.randrange(0,400), random.randrange(0,400)])
 
 def move_ant_to(ant, pos):
     ant[0] += pos[0]
@@ -43,7 +42,7 @@ def attract(ant, attract_pos):
         pass
 
 def legit_moves(ant, attract_pos):
-    movelist = [[1, 0], [-1, 0], [0, 1], [0, -1]]
+    movelist = [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, -1], [-1, 1], [1, -1]]
     possible_moves = list()
 
     for move in movelist:
@@ -53,26 +52,46 @@ def legit_moves(ant, attract_pos):
             pass
     return possible_moves
 
-
-
+queue = 0
+# Loop until the user clicks the close button.
+done = False
 while not done: 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             done = True
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            if len(balls) < 3:
+                balls.append(pos)
+            else:
+                # Queue which only puts 3 balls on screen at once
+                balls.remove(balls[queue])
+                balls.insert(queue, pos)
+                queue += 1
+                if queue == 3:
+                    queue = 0
+
+
+    pos = pygame.mouse.get_pos()
+    x = pos[0]
+    y = pos[1]
+
 
     for ant in ants:
         # If in proximity of 50 pixels, attract towards ball
         for ball in balls:
-            if get_distance(ant, ball) < 50 and get_distance(ant, ball) > 0:
+            
+            if get_distance(ant, ball) < 100 and get_distance(ant, ball) >= 0:
                 attracting_moves = legit_moves(ant, ball)
-                move_ant_to(ant, random.choice(attracting_moves))
+                if attracting_moves:
+                    move_ant_to(ant, random.choice(attracting_moves))
 
-        else:
-            # Choose random direction and move
-            dic = {"left": (-1,0), "right": (1,0), "up": (0,-1), "down": (0,1)}
-            moves = ["left", "up", "down", "right"]
-            random_pick = random.choice(moves)
-            move_ant_to(ant, dic[random_pick])
+
+            else:
+                # Choose random direction and move
+                dic = {"left": (-1,0), "right": (1,0), "up": (0,-1), "down": (0,1), "upleft": (-1,-1), "downleft": (-1,1), "upright": (1,-1), "bottomright": (1,1)}
+                moves = ["left", "up", "down", "right"]
+                random_pick = random.choice(moves)
+                move_ant_to(ant, dic[random_pick])
          
 
     # Can't remove from iterating list so we make a copy using ants[:]
@@ -84,13 +103,13 @@ while not done:
 
     # Draw ants
     for ant in ants:
-        pygame.draw.circle(screen, [0,255,0], ant, 0)
+        pygame.draw.rect(screen, [0,255,0], [ant[0], ant[1],1,1], 1)
 
     pygame.display.flip()
     # Clear the screen and set the screen background
     screen.fill(black)
 
-    clock.tick()
+    clock.tick(60)
  
 # Can't use X on window withou this command
 pygame.quit()

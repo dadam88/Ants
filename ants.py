@@ -2,7 +2,7 @@
 Ant colony simulator or BLACK holes and stars
 '''
 import pygame, random, math
-
+from collections import deque
 class Ant():
 
     moves = {"left": (-1,0), "right": (1,0), "up": (0,-1), "down": (0,1), "upleft": (-1,-1), "downleft": (-1,1), "upright": (1,-1), "bottomright": (1,1)}
@@ -61,9 +61,8 @@ def main():
         ants.append(Ant())
         
     # Create list of balls (attracting balls)
-    balls = []
-
-    queue = 0
+    balls = deque()
+    
     # Loop until the user clicks the close button.
     done = False
     while not done: 
@@ -72,14 +71,11 @@ def main():
                 done = True
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if len(balls) < 3:
-                    balls.append(pos)
+                    balls.appendleft(pos)
                 else:
-                    # Queue which only puts 3 balls on SCREEN at once
-                    balls.remove(balls[queue])
-                    balls.insert(queue, pos)
-                    queue += 1
-                    if queue == 3:
-                        queue = 0
+                    # Stack - keep no more than 3 balls on screen and get rid of oldest one in "deque"
+                    balls.pop()    
+                    balls.appendleft(pos)
 
         # Grab mouse coordinates every cycle
         pos = pygame.mouse.get_pos()

@@ -1,0 +1,10 @@
+My Ant Program
+
+Create objects that represent ants
+	normal ant
+		wanders around the screen
+		movement is influenced by scent trail
+		ants leave a scent trail
+
+	
+
